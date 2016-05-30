@@ -59,6 +59,12 @@ function glmach.dofile(fname)
 	dofile(fname)
 end
 
+function glmach.dolist(list)
+	for i = 1, #list do
+		dofile(list[i])
+	end
+end
+
 function glmach.validate_mod(mod)
 	if not mod.name then glmach.error("module without name") end
 	for f, t, d, vars in imodfields(mod) do

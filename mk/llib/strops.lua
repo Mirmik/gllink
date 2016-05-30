@@ -20,7 +20,7 @@ function  string.tblgsub(str,ptbl,ntbl)
 	return lstr
 end
 
-function string.concat_from_list(list,div)
+function string.lconcat(list,div)
    local str = ""
    for i = 1, #list - 1 do
       str = str .. list[i] .. div

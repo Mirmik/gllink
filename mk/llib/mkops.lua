@@ -14,6 +14,15 @@ function mk.rule_build(container, prototype)
 	return str
 end
 
+function mk.compile_rules(prototypes,container)
+	local outrules = {}
+	for key,rule in pairs(prototypes) do
+		outrules[key] = mk.rule_build(container,rule)
+	end 
+	return outrules
+end
+
+
 function mk.use_rule_simple(rule,src,tgt)
 	local instr = rule
 	instr = string.tblgsub(instr,{"#src","#tgt"},{src,tgt})
