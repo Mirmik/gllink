@@ -207,4 +207,14 @@ function paths.list_changeexp(list, exp)
   return outlist
 end
 
+function paths.validate_directory(pth)
+  local val = paths.absdir(pth)
+  if paths.exists(val) then return true 
+  else 
+    paths.validate_directory(val)
+    print("MKDIR " .. val)
+    paths.mkdir(val)
+  end 
+end
+
 --return paths

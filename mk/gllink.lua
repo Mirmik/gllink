@@ -1,9 +1,9 @@
 #!/usr/bin/lua
 
-dofile("./mk/llib/tableops.lua")
-dofile("./mk/llib/strops.lua")
-dofile("./mk/llib/pathops.lua")
-dofile("./mk/llib/glmach.lua")
-dofile("./mk/llib/mkops.lua")
-dofile("./mk/llib/colorizing.lua")
+dofile(GLINKDIR .. "llib/tableops.lua")
+dofile(GLINKDIR .. "llib/strops.lua")
+dofile(GLINKDIR .. "llib/pathops.lua")
+dofile(GLINKDIR .. "llib/glmach.lua")
+dofile(GLINKDIR .. "llib/mkops.lua")
+dofile(GLINKDIR .. "llib/colorizing.lua")
 

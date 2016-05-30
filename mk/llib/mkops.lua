@@ -17,8 +17,9 @@ end
 function mk.use_rule_simple(rule,src,tgt)
 	local instr = rule
 	instr = string.tblgsub(instr,{"#src","#tgt"},{src,tgt})
+	paths.validate_directory(tgt)
 	print(instr)
-	if not os.execute(instr) then
+	if not (os.execute(instr) == 0) then
 		print(colorizing.red("Error at rule using operation"))
 		os.exit()
 	end
