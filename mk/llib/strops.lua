@@ -21,6 +21,8 @@ function  string.tblgsub(str,ptbl,ntbl)
 end
 
 function string.lconcat(list,div)
+   if list == nil then return "" end
+   if #list == 0 then return "" end
    local str = ""
    for i = 1, #list - 1 do
       str = str .. list[i] .. div

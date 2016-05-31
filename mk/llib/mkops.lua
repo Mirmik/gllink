@@ -2,7 +2,7 @@ mk = {}
 local os = require("os")
 local lfs = require("lfs")
 
-function mk.rule_build(container, prototype)
+function mk.rule_build(prototype, container)
 	local lp
 	local s
 	local str = prototype
@@ -17,13 +17,13 @@ end
 function mk.compile_rules(prototypes,container)
 	local outrules = {}
 	for key,rule in pairs(prototypes) do
-		outrules[key] = mk.rule_build(container,rule)
+		outrules[key] = mk.rule_build(rule,container)
 	end 
 	return outrules
 end
 
 
-function mk.use_rule_simple(rule,src,tgt)
+function mk.use_rule(rule,src,tgt)
 	local instr = rule
 	instr = string.tblgsub(instr,{"#src","#tgt"},{src,tgt})
 	paths.validate_directory(tgt)
@@ -37,7 +37,7 @@ end
 function mk.use_rule_list(rule,src,tgt)
 	assert(#src == #tgt)
 	for i = 1, #src do
-		mk.use_rule_simple(rule,src[i],tgt[i])
+		mk.use_rule(rule,src[i],tgt[i])
 	end
 end
 
@@ -60,8 +60,4 @@ function mk.prepare_srctgt_lists(list, tgtexp, srcprefix, tgtprefix)
 	local srclist = paths.list_add_prefix(list,srcprefix)
 	local tgtlist = paths.list_add_prefix(_tgtlist,tgtprefix)
 	return srclist, tgtlist
-end
-
-function mk.build_module(mod,ruls,vars) 
-
 end
