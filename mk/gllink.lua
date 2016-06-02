@@ -6,4 +6,4 @@ dofile(GLINKDIR .. "llib/pathops.lua")
 dofile(GLINKDIR .. "llib/glmach.lua")
 dofile(GLINKDIR .. "llib/mkops.lua")
 dofile(GLINKDIR .. "llib/colorizing.lua")
-
+dofile(GLINKDIR .. "llib/assembly.lua")

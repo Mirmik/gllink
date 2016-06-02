@@ -76,3 +76,25 @@ function table.shallowcopy(orig)
     end
     return copy
 end
+
+function table.uconcat(...)
+  local tbl
+  local out = {}
+  for i=1,select('#', ...) do
+    tbl = select(i,...)
+    if tbl then
+      for j=1, #tbl do
+       table.insert(out,tbl[j])
+      end
+    end
+  end
+  --print(string.lconcat(out," "))
+  return out
+end
+
+function table.insert_list(list, added)
+  local n = #list
+  for i = 1, #added do
+    list[i + n] = added[i]
+  end
+end

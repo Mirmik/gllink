@@ -5,5 +5,13 @@ function colorizing.block(str)
 end
 
 function colorizing.red(str)
-	return colorizing.block("[31m" .. str)
+	return colorizing.block("[31;1m" .. str)
+end
+
+function colorizing.green(str)
+	return colorizing.block("[32;1m" .. str)
+end
+
+function colorizing.yellow(str)
+	return colorizing.block("[33;1m" .. str)
 end

@@ -23,9 +23,10 @@ function mk.compile_rules(prototypes,container)
 end
 
 
-function mk.use_rule(rule,src,tgt)
+function mk.use_rule(rule,src,tgt,loc)
 	local instr = rule
-	instr = string.tblgsub(instr,{"#src","#tgt"},{src,tgt})
+	if loc == nil then loc = "" end
+	instr = string.tblgsub(instr,{"#src","#tgt","#loc"},{src,tgt,loc})
 	paths.validate_directory(tgt)
 	print(instr)
 	if not (os.execute(instr) == 0) then
@@ -34,10 +35,10 @@ function mk.use_rule(rule,src,tgt)
 	end
 end
 
-function mk.use_rule_list(rule,src,tgt)
+function mk.use_rule_list(rule,src,tgt,loc)
 	assert(#src == #tgt)
 	for i = 1, #src do
-		mk.use_rule(rule,src[i],tgt[i])
+		mk.use_rule(rule,src[i],tgt[i],loc)
 	end
 end
 
@@ -60,4 +61,14 @@ function mk.prepare_srctgt_lists(list, tgtexp, srcprefix, tgtprefix)
 	local srclist = paths.list_add_prefix(list,srcprefix)
 	local tgtlist = paths.list_add_prefix(_tgtlist,tgtprefix)
 	return srclist, tgtlist
+end
+
+function mk.sl_is_need_to_compile(srcs,tgt)
+	if not (paths.exists(tgt)) then return true end
+	for i = 1, #srcs do
+		if (lfs.attributes(srcs[i],"modification") 
+			> lfs.attributes(tgt,"modification"))
+		then return true end 
+	end
+	return false 
 end
