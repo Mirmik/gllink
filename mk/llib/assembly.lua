@@ -1,4 +1,6 @@
 CURDIR = paths.cwd()
+STARTDIR = paths.cwd()
+STARTPATH = "gllink.lua"
 CURFILE = "gllink.lua"
 MODS = {}
 METAMODS = {}
@@ -22,6 +24,14 @@ function gm_dofile(fpath)
 	CURDIR = paths.absdir(fpath)
 	CURFILE = fpath
 	dofile(fpath)
+	CURFILE = STARTPATH
+	CURDIR = STARTDIR
+end
+
+function gm_dolist(list)
+	for i = 1, #list do
+		gm_dofile(list[i])
+	end
 end
 
 function regmodule(mod)
@@ -66,13 +76,13 @@ function modoutassembl(args)
 
 	if args.strtg == Strtg.standart then
 		if mk.sl_is_need_to_compile(args.objs,args.tgt) then
-			mk.use_rule(args.rule,string.lconcat(args.objs, " "),args.tgt)
+			mk.use_rule(args.rule,string.lconcat(args.objs, " "),args.tgt,args.loc)
 		end
 		return
 	end
 
 	if args.strtg == Strtg.always then
-		mk.use_rule(args.rule,string.lconcat(args.objs, " "),args.tgt)
+		mk.use_rule(args.rule,string.lconcat(args.objs, " "),args.tgt,args.loc)
 		return
 	end
 	
@@ -93,6 +103,7 @@ function makesources(args)
 
 	params = 
 	{
+		loc = args.loc,
 		srcpref = args.srcpref,
 		bdir = args.bdir,
 		strtg = args.strtg,
@@ -157,21 +168,53 @@ function makemetamodule(args)
 	return makemod(mod,args)
 end
 
+function modtarget(mod,args,target)
+	if mod.assembly == true then
+		return args.bdir .. "/" .. target
+	else
+		return args.bdir .. "/" .. target .. ".a"
+	end
+end
 
 function makemod(mod,args)
 	local objs = {}
 	local tgt = nil
 	local mret
 	local target
-	if mod.target == nil then target = mod.name end
-	
+	local lloc
+	if mod.target == nil then target = mod.name
+	else target = mod.target end
+	if mod.loc == nil then mod.loc = "" end
+	if args.loc == nil then args.loc = "" end
 	--print(colorizing.yellow("["..deep.."] -> " .. mod.name)); deep = deep + 1;
 	--print("dir:\t" .. mod.dirpath)
 	--print("file:\t" .. mod.filepath)
 	--print("target:\t" .. target)
+	--print(args.loc)
+
+	if args.strtg == Strtg.static then
+		if paths.exists(modtarget(mod,args,target)) 
+			then return  {modtarget(mod,args,target)} end
+	end
+
+	lloc = mod.loc .. " " .. args.loc
+
+	local s, t
+
+	if mod.locinc then
+		for i = 1, #mod.locinc do
+			s = mod.dirpath .. "/" .. mod.locinc[i].src
+			t = args.bdir .. "/" .. mod.locinc[i].tgt
+			if not paths.exists(t) then
+				mk.use_rule(args.rules.ln_rule,s,t)
+			end
+		end
+		lloc = lloc .. " -I" .. args.bdir		
+	end
 
 	params = 
 	{
+		loc = lloc,
 		srcpref = mod.dirpath, 
 		bdir = args.bdir, 
 		rules = args.rules,
@@ -190,6 +233,8 @@ function makemod(mod,args)
 		--assert(MODS[modlit.name])
 		modparams = table.shallowcopy(args)
 		modparams.name = modlit.name
+		if modlit.loc == nil then modlit.loc = "" end
+		modparams.loc = lloc .. " " .. modlit.loc
 		modparams.bdir = paths.reduce(args.bdir .. "/" .. modlit.name)
 		if modlit.strtg then modparams.strtg = modlit.strtg end
 		
@@ -217,7 +262,8 @@ function makemod(mod,args)
 				rule = args.rules.ld_rule, 
 				objs = objs, 
 				tgt = tgt, 
-				strtg = args.strtg
+				strtg = args.strtg,
+				loc = lloc 
 			}
 		else
 			tgt = paths.reduce(args.bdir .. "/" .. target .. ".a")
@@ -226,7 +272,8 @@ function makemod(mod,args)
 				rule = args.rules.ar_rule, 
 				objs = objs, 
 				tgt = tgt, 
-				strtg = args.strtg
+				strtg = args.strtg,
+				loc = lloc
 			}
 		end
 		out = {tgt}
