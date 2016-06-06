@@ -258,40 +258,24 @@ function makemod(mod,args)
 		else
 			error(colorizing.red("wrong module name"))
 		end
-		table.insert_list(abjs, mret)
+		table.insert_list(objs, mret)
 	end end
 
 	local out
-	
-	if #objs == 0 then 
-		out = {} 
-	else
+	out = objs
+	if (not(#objs == 0)) and (mod.assembly == true) then 
 		assert(args.strtg)
-		if mod.assembly == true then
-			tgt = paths.reduce(args.bdir .. "/" .. target)
-			modoutassembl
-			{
-				rule = args.rules.ld_rule, 
-				objs = objs, 
-				tgt = tgt, 
-				strtg = args.strtg,
-				loc_cc = lloc_cc,
-				loc_cxx = lloc_cxx
-			}
-		else
-			tgt = paths.reduce(args.bdir .. "/" .. target .. ".a")
-			modoutassembl
-			{
-				rule = args.rules.ar_rule, 
-				objs = objs, 
-				tgt = tgt, 
-				strtg = args.strtg,
-				loc_cc = lloc_cc,
-				loc_cxx = lloc_cxx
-			}
-			--mk.use_rule(args.rules.ranlib_rule, nil, tgt, nil)
-		end
-		out = table.uconcat(objs,abjs)
+		tgt = paths.reduce(args.bdir .. "/" .. target)
+		modoutassembl
+		{
+			rule = args.rules.ld_rule, 
+			objs = objs, 
+			tgt = tgt, 
+			strtg = args.strtg,
+			loc_cc = lloc_cc,
+			loc_cxx = lloc_cxx
+		}
+		out = {tgt}
 	end
 
 	--print("output: "..table.tostring(out))
