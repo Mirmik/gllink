@@ -25,6 +25,8 @@ end
 
 function mk.use_rule(rule,src,tgt,loc)
 	local instr = rule
+	if src == nil then src = "" end
+	if tgt == nil then tgt = "" end
 	if loc == nil then loc = "" end
 	instr = string.tblgsub(instr,{"#src","#tgt","#loc"},{src,tgt,loc})
 	paths.validate_directory(tgt)

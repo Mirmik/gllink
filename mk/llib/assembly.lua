@@ -182,6 +182,7 @@ end
 
 function makemod(mod,args)
 	local objs = {}
+	local abjs = {}
 	local tgt = nil
 	local mret
 	local target
@@ -257,7 +258,7 @@ function makemod(mod,args)
 		else
 			error(colorizing.red("wrong module name"))
 		end
-		table.insert_list(objs, mret)
+		table.insert_list(abjs, mret)
 	end end
 
 	local out
@@ -288,8 +289,9 @@ function makemod(mod,args)
 				loc_cc = lloc_cc,
 				loc_cxx = lloc_cxx
 			}
+			--mk.use_rule(args.rules.ranlib_rule, nil, tgt, nil)
 		end
-		out = {tgt}
+		out = table.uconcat(objs,abjs)
 	end
 
 	--print("output: "..table.tostring(out))
