@@ -39,6 +39,7 @@ function regmodule(mod)
 	mod.filepath = CURFILE
 	mod.dirpath = CURDIR
 	MODS[mod.name] = mod
+	print("regmodule " .. mod.name)
 end
 
 function regmetamodule(mod)
@@ -103,7 +104,7 @@ function makesources(args)
 
 	params = 
 	{
-		loc = args.loc,
+		loc = nil,
 		srcpref = args.srcpref,
 		bdir = args.bdir,
 		strtg = args.strtg,
@@ -112,18 +113,21 @@ function makesources(args)
 	local cxxtl, cctl, stl
 
 	if args.src.cxx then
+		params.loc = args.loc_cxx
 		params.srcs = args.src.cxx
 		params.rule = args.rules.cxx_rule
 		cxxtl = makesource_list(params)
 	end
 	
 	if args.src.cc then
+		params.loc = args.loc_cc
 		params.srcs = args.src.cc
 		params.rule = args.rules.cc_rule
 		cctl = makesource_list(params)
 	end
 	
 	if args.src.s then
+		params.loc = ""
 		params.srcs = args.src.s
 		params.rule = args.rules.s_rule
 		stl = makesource_list(params)
@@ -181,12 +185,14 @@ function makemod(mod,args)
 	local tgt = nil
 	local mret
 	local target
-	local lloc
+	local lloc_cc, lloc_cxx
 	if mod.target == nil then target = mod.name
 	else target = mod.target end
 	if mod.loc == nil then mod.loc = "" end
+	if mod.loc_cc == nil then mod.loc_cc = "" end
+	if mod.loc_cxx == nil then mod.loc_cxx = "" end
 	if args.loc == nil then args.loc = "" end
-	--print(colorizing.yellow("["..deep.."] -> " .. mod.name)); deep = deep + 1;
+	print(colorizing.yellow("["..deep.."] -> " .. mod.name)); deep = deep + 1;
 	--print("dir:\t" .. mod.dirpath)
 	--print("file:\t" .. mod.filepath)
 	--print("target:\t" .. target)
@@ -197,7 +203,8 @@ function makemod(mod,args)
 			then return  {modtarget(mod,args,target)} end
 	end
 
-	lloc = mod.loc .. " " .. args.loc
+	lloc_cc = mod.loc .. " " .. mod.loc_cc .. " " .. args.loc
+	lloc_cxx = mod.loc .. " " .. mod.loc_cxx .. " " .. args.loc
 
 	local s, t
 
@@ -209,12 +216,14 @@ function makemod(mod,args)
 				mk.use_rule(args.rules.ln_rule,s,t)
 			end
 		end
-		lloc = lloc .. " -I" .. args.bdir		
+		lloc_cc = lloc_cc .. " -I" .. args.bdir
+		lloc_cxx = lloc_cxx .. " -I" .. args.bdir		
 	end
 
 	params = 
 	{
-		loc = lloc,
+		loc_cc = lloc_cc,
+		loc_cxx = lloc_cxx,
 		srcpref = mod.dirpath, 
 		bdir = args.bdir, 
 		rules = args.rules,
@@ -233,8 +242,10 @@ function makemod(mod,args)
 		--assert(MODS[modlit.name])
 		modparams = table.shallowcopy(args)
 		modparams.name = modlit.name
-		if modlit.loc == nil then modlit.loc = "" end
-		modparams.loc = lloc .. " " .. modlit.loc
+		if modlit.loc_cc == nil then modlit.loc_cc = "" end
+		if modlit.loc_cxx == nil then modlit.loc_cxx = "" end
+		modparams.loc_cc = lloc_cc .. " " .. modlit.loc_cc
+		modparams.loc_cxx = lloc_cxx .. " " .. modlit.loc_cxx
 		modparams.bdir = paths.reduce(args.bdir .. "/" .. modlit.name)
 		if modlit.strtg then modparams.strtg = modlit.strtg end
 		
@@ -263,7 +274,8 @@ function makemod(mod,args)
 				objs = objs, 
 				tgt = tgt, 
 				strtg = args.strtg,
-				loc = lloc 
+				loc_cc = lloc_cc,
+				loc_cxx = lloc_cxx
 			}
 		else
 			tgt = paths.reduce(args.bdir .. "/" .. target .. ".a")
@@ -273,14 +285,15 @@ function makemod(mod,args)
 				objs = objs, 
 				tgt = tgt, 
 				strtg = args.strtg,
-				loc = lloc
+				loc_cc = lloc_cc,
+				loc_cxx = lloc_cxx
 			}
 		end
 		out = {tgt}
 	end
 
 	--print("output: "..table.tostring(out))
-	--print(colorizing.yellow("["..(deep-1).."] " .. "<- "  .. mod.name))
+	print(colorizing.yellow("["..(deep-1).."] " .. "<- "  .. mod.name))
 	deep = deep - 1
 
 	return out
