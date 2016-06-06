@@ -14,9 +14,9 @@ Variables =
 	LD = "g++",
 	AR = "ar",
 	LN = "ln",
-	CXXFLAG = "",
+	CXXFLAG = "-std=gnu++11",
 	CCFLAG = "",
-	INCLUDE = "",
+	INCLUDE = "-I../glib/include -I../glib/arch/linux/include",
 	DEFINE = "",
 	LDFLAG = "",
 }
@@ -26,7 +26,7 @@ RulePrototypes =
 	cxx_rule = "{CXX} #src -c -o #tgt {INCLUDE} {DEFINE} {CXXFLAG} #loc",
 	cc_rule = "{CC} #src -c -o #tgt {INCLUDE} {DEFINE} {CCFLAG} #loc",	
 	ar_rule = "{AR} rc #tgt #src",
-	ld_rule = "{LD} #src -o #tgt {LDFLAG} #loc",
+	ld_rule = "{LD} -Wl,--start-group #src -Wl,--end-group -o #tgt {LDFLAG} #loc",
 	ln_rule = "{LN} #src #tgt"
 }
 RULES = mk.compile_rules(RulePrototypes,Variables)
@@ -36,27 +36,34 @@ task =
 	name = "genos",
 	sources = 
 	{
-		cxx = {"main.cpp"},
+		--cxx = {"main.cpp"},
 	},
 
 	modules = 
 	{
-		{name = "factorial", loc = "-DFFF=3"},
+		{name = "arch", impl = "linux64"},
+		
+		{name = "diag", impl = "impl"},
+		{name = "arch_diag", impl = "linux64"},
+
+		{name = "dprint", impl = "diag", strtg = Strtg.always},
+
+		{name = "main", strtg = Strtg.always},
 	},
 
-	locinc = 
-	{
-		{src = "mmm.h", tgt = "sss.h"}
-	},
+	--locinc = 
+	--{
+		--{src = "mmm.h", tgt = "sss.h"}
+	--},
 	
-	loc = "-DGENOS=1",
+	--loc = "-DGENOS=1",
 	--target = "genos"
 	assembly = true
 }
 regmodule(task)
 
-gm_dofile("main.gll")
-gm_dofile("factorial/fact.gll")
+gm_dolist(paths.find("*.gll", ".")); 
+gm_dolist(paths.find("*.gll", "../glib")); 
 
 --printmods()
 print(colorizing.yellow("MAKE"))
