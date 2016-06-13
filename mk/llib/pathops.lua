@@ -157,7 +157,7 @@ function paths.relative(root, path)
       table.insert(path, 1, '../')
    end
 
-   return table.concat(path)
+   return paths.unsplit(path)
 end
 
 function paths.mkdir_list_relative(list,rel)
@@ -181,6 +181,16 @@ end
 function paths.find(templ,root)
 	local tbl = string.split(os.capture(string.format('find %s -name "%s"', root, templ),true))
 	return tbl
+end
+
+function paths.find_relative(templ,root,rel)
+  local tbl = paths.find(templ,root)
+  --print(table.tostring(tbl))
+  local rettbl = {}
+  for i = 1, #tbl do
+    table.insert(rettbl, paths.relative(rel,tbl[i]))
+  end
+  return rettbl
 end
 
 function paths.changeexp(str, exp)
